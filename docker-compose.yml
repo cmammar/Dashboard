@@ -1,0 +1,50 @@
+version: "3"
+services:
+
+  api:
+    build: api/
+    expose:
+      - "5000"
+    ports:
+      - "5005:5000"
+    environment:
+      FLASK_ENV: "development"
+      JWT_SECRET_KEY: "y8pugPjzqjUQCF6Y2NdOk5PwKbZ7SsJi"
+    depends_on:
+      - db
+    networks:
+      - app-tier
+    volumes:
+    - ./api/app/:/app
+    restart: always
+
+
+  db:
+    image: postgres
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "password"
+    networks:
+      - app-tier
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db-data:/var/lib/postgresql/data
+    restart: always
+
+  vue:
+    build: vue/
+    ports:
+      - "8080:8080"                                                                                                                                                                                                                                                                                                                                                                               
+    depends_on:
+      - api
+    networks:
+      - app-tier
+    restart: always
+
+networks:
+  app-tier:
+
+volumes: 
+  db-data:
